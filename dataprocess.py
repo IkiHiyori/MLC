@@ -1,9 +1,10 @@
 import json
 from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.sparse import csr_matrix
 import time
 
 
-def get_data_matrix(data_path):
+def get_data(data_path):
     data = []
     labels = []
     with open(data_path, 'r') as f:
@@ -12,18 +13,16 @@ def get_data_matrix(data_path):
             str = ' '
             data.append(str.join(data_dic['abstract']))
             labels.append(data_dic['labels'])
-    return data, labels
-
-
-def get_tf_idf_matrix(data):
     tfidfVecorizer = TfidfVectorizer(analyzer=lambda x: x.split(' '))
-    tf_idf_matrix = tfidfVecorizer.fit_transform(data)   # csr matrix
-    word_id_dic = tfidfVecorizer.vocabulary_
-    return tf_idf_matrix, word_id_dic
-
-if __name__ == '__main__':
-    start = time.clock()
-    data, labels = get_data_matrix('dataset/test.json')
-    tf_idf_matrix, word_id_dic = get_tf_idf_matrix(data)
-    end = time.clock()
-    print('time:', end - start)
+    tf_idf_csr = tfidfVecorizer.fit_transform(data)  # csr matrix
+    # labels to csr matrix
+    row = []
+    col = []
+    for (i, label) in enumerate(labels):
+        for count in range(len(label)):
+            row.append(i)
+        for j in label:
+            col.append(j)
+    ones = [1] * len(row)
+    labels_csr = csr_matrix((ones, (row, col)), shape=(len(data), 798))
+    return tf_idf_csr, labels_csr
