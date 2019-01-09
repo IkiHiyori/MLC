@@ -9,8 +9,8 @@ import time
 start = time.clock()
 
 # data preparation
-train_path = 'dataset/test.json'
-test_path = 'dataset/validation.json'
+train_path = 'dataset/train.json'
+test_path = 'dataset/test.json'
 train_csr, train_labels_csr, test_csr, test_labels_csr = data_process.get_data_csr(train_path, test_path)
 
 # model definition
